@@ -4,6 +4,53 @@
 
 # Beautiful Rust
 
+> **This is the `patlux` fork** of [morganlinton/BeautifulRust](https://github.com/morganlinton/BeautifulRust),
+> trimmed for application and workspace code and adapted to a Pi / `skills`-CLI setup. See
+> [What this fork changes](#what-this-fork-changes). Everything below that section is
+> upstream's README.
+
+## What this fork changes
+
+- **Narrower trigger.** `SKILL.md` loads when you write, refactor, review or design Rust,
+  not on every mention of `cargo` or `.rs`. One-line fixes, dependency bumps and build
+  problems do not need 400 lines of style guidance.
+- **Application and workspace first.** Rules that only matter for a crate with external
+  consumers (visibility and evolution, `#[non_exhaustive]`, sealed traits, re-exports,
+  feature naming, semver, MSRV, rustdoc conventions, library error-type details) moved
+  unchanged into `skills/rust-best-practices/references/publishing-a-library.md`.
+  `SKILL.md` points there when a published crate is involved.
+- **`mbx` instead of bare `cargo`.** Compiler-invoking Cargo subcommands run through
+  [Mr. Boxington](https://github.com/jdx/mr-boxington) (`mbx clippy`, `mbx test`, `mbx doc`),
+  which manages per-worktree target directories. `cargo fmt`, `cargo metadata`, `cargo
+  tree` stay plain. Without `mbx`, the same `cargo` subcommand is the equivalent command.
+- **Project guidance wins.** A repository's `AGENTS.md`, `Makefile` or `justfile` lint and
+  test entry points override the skill's defaults.
+
+The Claude Code plugin manifest, the evals and the five source digests are untouched.
+
+### Install with the `skills` CLI
+
+In a repository that keeps its skills under `skills/` and tracks them in
+`skills-lock.json`:
+
+```bash
+npx --yes skills@1.5.22 add patlux/BeautifulRust --skill rust-best-practices --agent openclaw --copy --yes
+```
+
+Later updates come from this fork with `npx --yes skills@1.5.22 update --project --yes`.
+
+### Sync this fork with upstream
+
+```bash
+git fetch upstream
+git merge upstream/main
+# resolve conflicts in skills/rust-best-practices/SKILL.md and README.md, re-check the
+# publishing-a-library.md split, then:
+git push origin main
+```
+
+---
+
 A Claude Code plugin with one skill, `rust-best-practices`, that teaches Claude to write
 idiomatic, robust, maintainable Rust. Once installed, it loads automatically whenever a
 task involves Rust, cargo, crates, the borrow checker, clippy, or `.rs` files.
