@@ -39,9 +39,15 @@ the report. They catch the mechanical issues, which leaves you free for design.
 
 ```bash
 cargo fmt --check
-cargo clippy --all-targets --all-features -- -W clippy::pedantic
-cargo test
+mbx clippy --all-targets --all-features -- -W clippy::pedantic
+mbx test
 ```
+
+`mbx` (Mr. Boxington) wraps Cargo with managed per-worktree target directories and passes
+flags through unchanged. Never set `CARGO_TARGET_DIR`, `--target-dir`, `RUSTC_WRAPPER` or
+sccache alongside it. Without `mbx`, the same `cargo` subcommand is the equivalent
+command. A repository's `AGENTS.md`, `Makefile` or `justfile` lint and test entry points
+override these commands.
 
 Don't paste raw clippy output. Group repeated warnings into one finding, and skip pedantic
 lints that don't matter for this code. If the tools aren't available, say so in the report

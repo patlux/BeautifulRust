@@ -118,10 +118,16 @@ just finds exotic divergences that belong in the notes.
 Run these if a Rust toolchain is available, and fix everything before reporting:
 
 ```bash
-cargo build
-cargo test
-cargo clippy --all-targets -- -D warnings
+mbx build
+mbx test
+mbx clippy --all-targets -- -D warnings
 ```
+
+`mbx` (Mr. Boxington) wraps Cargo with managed per-worktree target directories and passes
+flags through unchanged. Never set `CARGO_TARGET_DIR`, `--target-dir`, `RUSTC_WRAPPER` or
+sccache alongside it. Without `mbx`, the same `cargo` subcommand is the equivalent
+command. A repository's `AGENTS.md`, `Makefile` or `justfile` build and test entry points
+override these commands.
 
 Every ported test must pass. If the original's tests can be run too, run them and compare
 results on the same inputs.

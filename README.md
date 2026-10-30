@@ -19,16 +19,18 @@
   feature naming, semver, MSRV, rustdoc conventions, library error-type details) moved
   unchanged into `skills/rust-best-practices/references/publishing-a-library.md`.
   `SKILL.md` points there when a published crate is involved.
-- **`mbx` instead of bare `cargo`.** Compiler-invoking Cargo subcommands run through
-  [Mr. Boxington](https://github.com/jdx/mr-boxington) (`mbx clippy`, `mbx test`, `mbx doc`),
-  which manages per-worktree target directories. `cargo fmt`, `cargo metadata`, `cargo
-  tree` stay plain. Without `mbx`, the same `cargo` subcommand is the equivalent command.
+- **`mbx` instead of bare `cargo`.** In all three skills, compiler-invoking Cargo
+  subcommands run through [Mr. Boxington](https://github.com/jdx/mr-boxington)
+  (`mbx build`, `mbx clippy`, `mbx test`, `mbx doc`), which manages per-worktree target
+  directories. `cargo fmt`, `cargo metadata`, `cargo tree` stay plain. Without `mbx`, the
+  same `cargo` subcommand is the equivalent command.
 - **Project guidance wins.** A repository's `AGENTS.md`, `Makefile` or `justfile` lint and
-  test entry points override the skill's defaults.
+  test entry points override the skills' defaults.
 
-These changes apply to `rust-best-practices` only. The Claude Code plugin manifest, the
-evals, the five source digests, `references/bevy.md`, `lints/`, `rust-review` and
-`rust-port` are untouched.
+The narrower trigger and the publishing split apply to `rust-best-practices` only;
+`rust-review` and `rust-port` differ from upstream only in their `mbx` commands. The
+Claude Code plugin manifest, the evals, the five source digests, `references/bevy.md` and
+`lints/` are untouched.
 
 ### Install with the `skills` CLI
 
@@ -36,10 +38,12 @@ In a repository that keeps its skills under `skills/` and tracks them in
 `skills-lock.json`:
 
 ```bash
-npx --yes skills@1.5.22 add patlux/BeautifulRust --skill rust-best-practices --agent openclaw --copy --yes
+npx --yes skills@1.5.22 add patlux/BeautifulRust --skill rust-best-practices rust-review rust-port --agent openclaw --copy --yes
 ```
 
-Later updates come from this fork with `npx --yes skills@1.5.22 update --project --yes`.
+Re-run the same command to update. Don't use `skills update`: it re-adds each skill
+without `--agent` and `--copy`, which replaces the copies under `skills/` with symlinks
+into new `.agents/skills/` and `.claude/skills/` directories.
 
 ### Sync this fork with upstream
 
@@ -47,8 +51,9 @@ Later updates come from this fork with `npx --yes skills@1.5.22 update --project
 git fetch upstream
 git merge upstream/main
 # resolve conflicts in skills/rust-best-practices/SKILL.md and README.md, re-check the
-# publishing-a-library.md split and the SKILL.md block numbers in scripts/examples.json
-# (the fork's SKILL.md has fewer Rust blocks than upstream's), then:
+# publishing-a-library.md split, the SKILL.md block numbers in scripts/examples.json
+# (the fork's SKILL.md has fewer Rust blocks than upstream's) and the mbx commands in
+# skills/rust-review/SKILL.md and skills/rust-port/SKILL.md, then:
 python3 scripts/check-skill.py
 python3 scripts/check-examples.py
 git push origin main
