@@ -32,8 +32,9 @@ overrides the entry points and conventions below.
 - **Make invalid states unrepresentable.** Enums instead of bool flags and "must be X if
   Y" comments, newtypes for units and IDs, fallible constructors that validate once.
 - **Application code is not library code.** Library code follows the API rules strictly.
-  Application code favors simplicity: concrete types, `anyhow` errors, `Vec` returns, no
-  speculative generality.
+  Application code favors simplicity: concrete types, `String` or `&str` rather than
+  `impl Into<String>` parameters, `anyhow` errors, `Vec` returns, no speculative
+  generality.
 - **Let the tools do the work.** rustfmt formats, clippy checks idioms, the compiler
   checks memory. Spend attention on design.
 
@@ -57,10 +58,10 @@ right for commands without build output (`fmt`, `metadata`, `tree`, `add`). Neve
   toolchains: `#[allow]` plus a comment). `#[allow]` only in generated or macro code.
 - Never `#![deny(warnings)]` in source; new toolchains add warnings. Enforce
   `-D warnings` in CI.
-- Configure lints once in `Cargo.toml` (`[lints.rust]`, `[lints.clippy]`,
-  `[workspace.lints]`). Baseline: `unsafe_op_in_unsafe_fn`,
-  `missing_debug_implementations`, `clippy::all`; where tolerated
-  `clippy::undocumented_unsafe_blocks`, `clippy::allow_attributes_without_reason`.
+- Configure lints once in `Cargo.toml` (`[lints]` or `[workspace.lints]`), not with
+  scattered crate attributes. If a project has none, suggest `lints/lints.toml` and
+  `lints/clippy.toml` from https://github.com/morganlinton/BeautifulRust; applications
+  drop the lints marked `[lib]`, and the suppression lints need `rust-version` 1.81+.
 
 ## 3. Ownership and borrowing
 
@@ -225,7 +226,7 @@ item of a published crate is a promise (`references/publishing-a-library.md`).
 - **Panics are not exceptions.** Never report bad input with one, never use
   `catch_unwind` for control flow (no-op under `panic = "abort"`, may leave state
   inconsistent), never catch and continue in reusable code. A justified panicking
-  convenience has a fallible twin (`get`/`get_unchecked`, `new`/`try_new`) and a
+  convenience has a fallible twin (`v[i]`/`v.get(i)`, `new`/`try_new`) and a
   `# Panics` section.
 - **Every intentional panic names the relevant values:** `assert!(buf.len() >= HEADER,
   "buffer too small: {} bytes", buf.len())`, `expect("config is loaded before workers
@@ -274,8 +275,8 @@ item of a published crate is a promise (`references/publishing-a-library.md`).
 
 - **Imports:** one `use` per module path; types and traits unqualified (`Regex`), free
   functions module-qualified (`mem::take`, `fs::read`). A trait used in one function is
-  imported there. No glob imports except `use super::*` in tests and `use Enum::*` inside
-  a function that matches on it.
+  imported there. No globs except `use super::*` in tests, `use Enum::*` in a function
+  that matches on it, and a framework's prelude such as `use bevy::prelude::*`.
 - **Magic numbers** become documented `const`s: where the value comes from, what changing
   it affects.
 - **Deterministic output:** sort or use `BTreeMap` before printing or serializing
@@ -387,7 +388,8 @@ only for trusted keys; batch work instead of per-item locking; applications may 
 - No `bool` parameters in shared signatures; no hand-written `Ord` without matching
   `PartialEq` and `Hash`.
 - No `.clone()` whose only job is to satisfy the borrow checker.
-- No glob imports, preludes or glob re-exports.
+- No glob imports (bar a framework's prelude), no preludes of your own, no glob
+  re-exports.
 - Every `unsafe` block has `// SAFETY:`; every `unsafe fn` has `# Safety`.
 - Application code stayed simple; a published crate also passed
   `references/publishing-a-library.md`.
@@ -407,3 +409,4 @@ only for trusted keys; batch work instead of per-item locking; applications may 
   error structs, panic policy, unsafe policy, async, workspace layout, performance.
 - `references/google-rust-style-guide.md` (https://google.github.io/styleguide/rustguide.html):
   formatting, imports, module layout, accessor naming, application vs library.
+- `references/bevy.md` (https://docs.rs/bevy/0.20.0): read first if the crate uses Bevy.
